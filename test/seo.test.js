@@ -41,7 +41,7 @@ test("shop city stays the published display string", () => {
 test("each page has a unique title and description inside snippet limits", () => {
   assert.deepEqual(
     pages.map((page) => page.path),
-    ["/", "/artists", "/care", "/book", "/privacy", "/terms"],
+    ["/", "/portfolio", "/artists", "/care", "/book", "/privacy", "/terms"],
   );
   const titles = new Set(pages.map((page) => page.title));
   const descriptions = new Set(pages.map((page) => page.description));
@@ -61,8 +61,12 @@ test("each page has a unique title and description inside snippet limits", () =>
   }
   assert.equal(pages[0].description.includes("Meagan"), false);
   assert.equal(pages[0].description.includes("Brittany"), false);
-  assert.equal(pages[1].description.includes("Meagan Caprice"), true);
-  assert.equal(pages[1].description.includes("Brittany Ostrander"), true);
+  const artistsPage = pages.find((page) => page.id === "artists");
+  assert.equal(artistsPage.description.includes("Meagan Caprice"), true);
+  assert.equal(artistsPage.description.includes("Brittany Ostrander"), true);
+  const portfolioPage = pages.find((page) => page.id === "portfolio");
+  assert.equal(portfolioPage.description.includes("Meagan"), false);
+  assert.equal(portfolioPage.description.includes("Brittany"), false);
 });
 
 test("paths normalize and unknown paths do not match a page", () => {

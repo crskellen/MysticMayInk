@@ -1,24 +1,15 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import peony from "../assets/feed-samples/meagan-peony.jpg";
-import fox from "../assets/feed-samples/facebook-fox.jpg";
-import blackwork from "../assets/feed-samples/britt-blackwork.jpg";
-import olive from "../assets/feed-samples/britt-olive.jpg";
-import fern from "../assets/feed-samples/meagan-fern.jpg";
-import dagger from "../assets/feed-samples/britt-dagger.jpg";
-import coverup from "../assets/feed-samples/meagan-coverup.jpg";
-import moth from "../assets/feed-samples/britt-moth.jpg";
+import PieceScreen from "./PieceScreen";
+import RouteLink from "./RouteLink";
 import { shopName } from "../data/brand";
+import { openingPieces } from "../data/portfolio.js";
+import { portfolioPhotos } from "../data/portfolio-photos.js";
 
-const pieces = [
-  { src: peony, style: "Botanical & Floral", alt: "Botanical and floral tattoo", width: 720, height: 1280 },
-  { src: fox, style: "Black & Grey", alt: "Black and grey tattoo", width: 832, height: 1248 },
-  { src: blackwork, style: "Blackwork", alt: "Blackwork tattoo", width: 720, height: 1280 },
-  { src: olive, style: "Fine Line", alt: "Fine line tattoo", width: 720, height: 1280 },
-  { src: fern, style: "Botanical & Floral", alt: "Botanical and floral tattoo", width: 720, height: 1280 },
-  { src: dagger, style: "Fine Line", alt: "Fine line tattoo", width: 832, height: 1248 },
-  { src: coverup, style: "Cover-Ups", alt: "Cover-up tattoo", width: 720, height: 1280 },
-  { src: moth, style: "Fine Line", alt: "Fine line tattoo", width: 720, height: 1280 },
-];
+const pieces = openingPieces().map((piece) => ({
+  ...piece,
+  src: portfolioPhotos[piece.id],
+  style: piece.filmStyle,
+}));
 
 function framesOf(film) {
   return Array.from(film.querySelectorAll("[data-piece]"));
@@ -80,7 +71,7 @@ function applyLayout(film) {
   return true;
 }
 
-export default function WorkFilmstrip() {
+export default function WorkFilmstrip({ onNavigate }) {
   const filmRef = useRef(null);
   const styleRef = useRef(null);
   const indexRef = useRef(0);
@@ -89,6 +80,7 @@ export default function WorkFilmstrip() {
   const [active, setActive] = useState(0);
   const [hint, setHint] = useState("Drag");
   const [hintOn, setHintOn] = useState(true);
+  const [viewId, setViewId] = useState("");
 
   function placeStyle(film) {
     const node = styleRef.current;
@@ -127,6 +119,7 @@ export default function WorkFilmstrip() {
     let startX = 0;
     let startScroll = 0;
     let moved = 0;
+    let downFrame = null;
     let wheelLock = false;
     let settling = false;
     let touchMoved = false;
@@ -150,6 +143,7 @@ export default function WorkFilmstrip() {
     function onPointerDown(event) {
       if (event.pointerType === "touch") {
         touchMoved = true;
+        moved = 0;
         return;
       }
       if (event.button !== 0) return;
@@ -157,6 +151,7 @@ export default function WorkFilmstrip() {
       startX = event.clientX;
       startScroll = film.scrollLeft;
       moved = 0;
+      downFrame = event.target.closest?.("[data-piece]") || null;
       dragging.current = true;
       film.classList.add("is-dragging");
       film.setPointerCapture(event.pointerId);
@@ -174,10 +169,16 @@ export default function WorkFilmstrip() {
       pointerId = null;
       dragging.current = false;
       film.classList.remove("is-dragging");
+      const frame = downFrame;
+      downFrame = null;
       if (moved > 6) {
         setHintOn(false);
         goTo(nearest(film, framesOf(film)));
+        return;
       }
+      if (!frame || !film.contains(frame)) return;
+      const index = framesOf(film).indexOf(frame);
+      if (index >= 0) setViewId(pieces[index].id);
     }
 
     function onWheel(event) {
@@ -214,7 +215,23 @@ export default function WorkFilmstrip() {
       placeStyle(film);
     }
 
+    function onClick(event) {
+      const dragged = moved > 6;
+      moved = 0;
+      if (dragged) return;
+      const frame = event.target.closest?.("[data-piece]");
+      if (!frame || !film.contains(frame)) return;
+      const index = framesOf(film).indexOf(frame);
+      if (index < 0) return;
+      setViewId(pieces[index].id);
+    }
+
     function onKeyDown(event) {
+      if (event.key === "Enter") {
+        const piece = pieces[indexRef.current];
+        if (piece) setViewId(piece.id);
+        return;
+      }
       if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
       const frames = framesOf(film);
       const index = frames.indexOf(nearest(film, frames));
@@ -234,6 +251,7 @@ export default function WorkFilmstrip() {
     }
 
     film.addEventListener("keydown", onKeyDown);
+    film.addEventListener("click", onClick);
     film.addEventListener("pointerdown", onPointerDown);
     film.addEventListener("pointermove", onPointerMove);
     film.addEventListener("pointerup", onPointerUp);
@@ -247,6 +265,7 @@ export default function WorkFilmstrip() {
     return () => {
       coarse.removeEventListener("change", showHint);
       film.removeEventListener("keydown", onKeyDown);
+      film.removeEventListener("click", onClick);
       film.removeEventListener("pointerdown", onPointerDown);
       film.removeEventListener("pointermove", onPointerMove);
       film.removeEventListener("pointerup", onPointerUp);
@@ -271,7 +290,7 @@ export default function WorkFilmstrip() {
         <div className="work-film-stock" aria-hidden="true" />
         {pieces.map((piece) => (
           <figure
-            key={piece.src}
+            key={piece.id}
             data-piece=""
             data-style={piece.style}
             data-aspect={piece.width / piece.height}
@@ -286,6 +305,17 @@ export default function WorkFilmstrip() {
         <p ref={styleRef} className="work-film-style" aria-live="polite">{pieces[active].style}</p>
         <p className={hintOn ? "work-film-hint" : "work-film-hint is-hidden"}>{hint}</p>
       </div>
+      <div className="work-portfolio">
+        <RouteLink href="/portfolio" onNavigate={onNavigate} className="work-portfolio-link">
+          View portfolio
+        </RouteLink>
+      </div>
+      <PieceScreen
+        open={viewId !== ""}
+        src={pieces.find((piece) => piece.id === viewId)?.src ?? ""}
+        alt={pieces.find((piece) => piece.id === viewId)?.alt ?? ""}
+        onClose={() => setViewId("")}
+      />
     </section>
   );
 }

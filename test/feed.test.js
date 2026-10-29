@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { artists } from "../src/data/artists.js";
 import { linkForDevice, linkForPost, videoPageUrl } from "../src/feed/links.js";
-import { newestFirst, postsForArtist, postsForArtists, postsForPlatform } from "../src/feed/order.js";
+import { newestFirst, postsForArtist, postsForArtistFeed, postsForArtists, postsForNewsfeed, postsForPlatform } from "../src/feed/order.js";
 import { facebookStandIns, instagramStandIns, standInPosts } from "../src/feed/stand-in.js";
 import { postedLabel } from "../src/feed/time.js";
 import { runSync } from "../src/feed/sync.js";
@@ -42,6 +42,86 @@ test("an artist page keeps only that artist, earliest first before the rail reve
   assert.deepEqual(
     newestFirst(posts).map((post) => post.id.slice(-4)),
     ["1005", "1002", "1001"],
+  );
+});
+
+test("an artist newsfeed is that artist's TikTok and Instagram only", () => {
+  const all = [...standInPosts, ...instagramStandIns, ...facebookStandIns];
+  const meagan = artists.find((artist) => artist.id === "meagan");
+  const britt = artists.find((artist) => artist.id === "britt");
+  const meaganPosts = newestFirst(postsForArtistFeed(all, meagan));
+  const brittPosts = newestFirst(postsForArtistFeed(all, britt));
+  assert.deepEqual(
+    meaganPosts.map((post) => post.id),
+    [
+      "MMIGmeg002",
+      "MMIGmeg001",
+      "7100000000000001005",
+      "7100000000000001002",
+      "7100000000000001001",
+    ],
+  );
+  assert.deepEqual(
+    brittPosts.map((post) => post.id),
+    [
+      "MMIGbrt002",
+      "7100000000000001006",
+      "MMIGbrt001",
+      "7100000000000001004",
+      "7100000000000001003",
+    ],
+  );
+  assert.equal(meaganPosts.some((post) => post.platform === "facebook"), false);
+  assert.equal(brittPosts.some((post) => post.handle === "@mysticmaytattoo"), false);
+  assert.equal(meaganPosts.some((post) => post.handle === "@inksbybritt"), false);
+});
+
+test("the home newsfeed merges every shop and artist post, newest first", () => {
+  const all = [...standInPosts, ...instagramStandIns, ...facebookStandIns];
+  const posts = newestFirst(postsForNewsfeed(all, artists));
+  assert.deepEqual(
+    posts.map((post) => post.id),
+    [
+      "MMIGmeg002",
+      "900000000000002",
+      "MMIGshop002",
+      "MMIGbrt002",
+      "7100000000000001006",
+      "MMIGbrt001",
+      "MMIGmeg001",
+      "7100000000000001005",
+      "7100000000000001004",
+      "7100000000000001003",
+      "7100000000000001002",
+      "900000000000001",
+      "7100000000000001001",
+      "MMIGshop001",
+    ],
+  );
+  const tiktokShop = posts.filter(
+    (post) => post.platform === "tiktok" && post.handle === "@capriceink_",
+  );
+  assert.equal(tiktokShop.length, 3);
+});
+
+test("the home newsfeed drops an unknown handle and keeps one copy of an id", () => {
+  const extra = {
+    id: "7100000000000001999",
+    platform: "instagram",
+    handle: "@someoneelse",
+    createTime: 1793400000,
+    caption: "nope",
+    coverUrl: "/nope.svg",
+  };
+  const duplicate = { ...instagramStandIns[0], caption: "second copy" };
+  const posts = postsForNewsfeed(
+    [extra, instagramStandIns[0], duplicate, facebookStandIns[0]],
+    artists,
+  );
+  assert.equal(posts.some((post) => post.handle === "@someoneelse"), false);
+  assert.equal(
+    posts.filter((post) => post.id === instagramStandIns[0].id).length,
+    1,
   );
 });
 

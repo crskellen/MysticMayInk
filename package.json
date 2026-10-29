@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build && vite build --ssr src/entry-server.jsx --outDir .ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "test": "node --test ./test/feed.test.js ./test/social-sync.test.js ./test/seo.test.js"
+    "test": "node --test ./test/feed.test.js ./test/social-sync.test.js ./test/seo.test.js ./test/portfolio.test.js"
   },
   "repository": {
     "type": "git",

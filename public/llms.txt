@@ -20,6 +20,7 @@ The care guide covers Before you book, The day of your session, In the studio, A
 ## Pages
 
 - [Home](/index.md): Custom tattoos at 23239 NY 342, Watertown, NY. Botanical and floral, fine line, black and grey, blackwork, fantasy and anime, and cover-ups. Text 315-775-3727.
+- [Portfolio](/portfolio/index.md): Finished tattoos from Mystic May Tattoo Studios in Watertown, NY. Filter by style, artist, keyword, and placement, or search the same words.
 - [Artists](/artists/index.md): Meagan Caprice: botanical, floral, black and grey, and cover-ups. Brittany Ostrander: fine line, blackwork, botanicals, fantasy, and anime. Watertown, NY.
 - [Care Guide](/care/index.md): How to prepare for a tattoo, what to expect in the studio, and how a fresh tattoo heals. Your artist's written aftercare comes first. Mystic May, Watertown, NY.
 - [Request a Session](/book/index.md): Text 315-775-3727 to request a tattoo session at 23239 NY 342, Watertown, NY. A text is not a confirmed appointment until the studio agrees to a time.

@@ -3,7 +3,7 @@ import WorkFilmstrip from '../components/WorkFilmstrip';
 import { artists } from '../data/artists';
 import { useFeed } from '../feed/useFeed.js';
 
-export default function Home() {
+export default function Home({ navigate }) {
   
   // Shop styles named in public captions from the studio accounts.
   const shopStyles = [
@@ -38,15 +38,16 @@ export default function Home() {
   return (
     <div className="animate-fadeIn">
       
-      <WorkFilmstrip />
+      <WorkFilmstrip onNavigate={navigate} />
 
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <SocialFeed
-          posts={catalog.posts}
-          artists={artists}
-          platforms={['tiktok', 'instagram', 'facebook']}
-          includeShop
-        />
+      <section className="border-y border-mystic-bg bg-mystic-card">
+        <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
+          <SocialFeed
+            posts={catalog.posts}
+            artists={artists}
+            combined
+          />
+        </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-6 py-20">

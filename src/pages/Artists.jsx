@@ -32,7 +32,8 @@ export default function Artists() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12 md:py-20 animate-fadeIn">
+    <div className="animate-fadeIn">
+    <div className="mx-auto max-w-7xl px-6 pb-12 pt-12 md:pb-16 md:pt-20">
       <header className="mb-10 max-w-2xl">
         <h1 className="font-serif text-3xl uppercase tracking-widest text-mystic-text md:text-4xl">
           Artists
@@ -82,7 +83,7 @@ export default function Artists() {
             hidden={!selected}
             aria-labelledby={`artist-tab-${artist.id}`}
           >
-            <div className="mb-16 rounded border border-mystic-bg bg-mystic-card p-6 shadow-gold-glow md:p-10">
+            <div className="rounded border border-mystic-bg bg-mystic-card p-6 shadow-gold-glow md:p-10">
               <div className="max-w-2xl space-y-4">
                 <div>
                   <h2 className="font-serif text-2xl uppercase tracking-wide text-mystic-text md:text-3xl">
@@ -119,11 +120,17 @@ export default function Artists() {
         );
       })}
 
-      <SocialFeed
-        posts={catalog.posts}
-        artists={[currentArtist]}
-        platforms={["tiktok", "instagram"]}
-      />
+    </div>
+
+    <section className="border-y border-mystic-bg bg-mystic-card">
+      <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
+        <SocialFeed
+          posts={catalog.posts}
+          artists={[currentArtist]}
+          personal
+        />
+      </div>
+    </section>
     </div>
   );
 }

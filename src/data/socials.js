@@ -73,6 +73,6 @@ export const footerPlatforms = [
   },
   {
     platform: "tiktok",
-    accounts: [shopTiktok, brittTiktok],
+    accounts: [meaganTiktok, brittTiktok],
   },
 ];

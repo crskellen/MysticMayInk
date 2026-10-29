@@ -92,6 +92,49 @@ export function postsForArtist(posts, artist) {
   return postsForArtists(posts, [artist]);
 }
 
+// One artist's newsfeed. Their TikTok and Instagram only, earliest first.
+// Shop Instagram, the shop Facebook page, and the other artist stay out.
+// Meagan's TikTok is @capriceink_, which is also the shop TikTok, so those
+// videos are hers here.
+export function postsForArtistFeed(posts, artist) {
+  if (!artist) return [];
+  const tiktok = normalizeHandle(artist.tiktokHandle);
+  const instagram = normalizeHandle(instagramHandle(artist));
+  return collect(posts, (post) => {
+    const handle = normalizeHandle(post.handle);
+    const platform = platformOf(post);
+    if (platform === "tiktok") return handle === tiktok;
+    if (platform === "instagram") return Boolean(instagram) && handle === instagram;
+    return false;
+  });
+}
+
+// One home newsfeed. Shop accounts and every artist's accounts, on every
+// platform, earliest first. The same profile on two platforms stays twice,
+// because those are different posts. @capriceink_ is both the shop TikTok
+// and Meagan's TikTok, so that profile is included once.
+export function postsForNewsfeed(posts, artists) {
+  const tiktok = new Set(
+    (artists ?? []).map((artist) => normalizeHandle(artist.tiktokHandle)),
+  );
+  const instagram = new Set(
+    (artists ?? [])
+      .map((artist) => normalizeHandle(instagramHandle(artist)))
+      .filter(Boolean),
+  );
+  tiktok.add(shopHandle("tiktok"));
+  instagram.add(shopHandle("instagram"));
+  const facebook = shopHandle("facebook");
+  return collect(posts, (post) => {
+    const handle = normalizeHandle(post.handle);
+    const platform = platformOf(post);
+    if (platform === "tiktok") return tiktok.has(handle);
+    if (platform === "instagram") return instagram.has(handle);
+    if (platform === "facebook") return handle === facebook;
+    return false;
+  });
+}
+
 // `posts` must already be in comparePosts order. The rail starts at the newest.
 export function newestFirst(posts) {
   return [...(posts ?? [])].reverse();

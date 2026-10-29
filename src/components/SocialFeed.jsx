@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import PostCard from "./PostCard";
 import { platformLabels } from "../data/socials.js";
-import { newestFirst, postsForPlatform } from "../feed/order.js";
+import { newestFirst, postsForArtistFeed, postsForNewsfeed, postsForPlatform } from "../feed/order.js";
 
 const emptyCopy = {
   tiktok: "No TikTok posts yet.",
@@ -20,16 +20,23 @@ export default function SocialFeed({
   artists,
   platforms,
   includeShop = false,
+  combined = false,
+  personal = false,
 }) {
-  const [platform, setPlatform] = useState(platforms[0]);
+  const [platform, setPlatform] = useState(platforms?.[0]);
   const scrollerRef = useRef(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
-  const selected = platforms.includes(platform) ? platform : platforms[0];
+  const selected = platforms?.includes(platform) ? platform : platforms?.[0];
+  const news = combined || personal;
   const visible = newestFirst(
-    postsForPlatform(posts, artists, selected, { includeShop }),
+    personal
+      ? postsForArtistFeed(posts, artists?.[0])
+      : combined
+        ? postsForNewsfeed(posts, artists)
+        : postsForPlatform(posts, artists, selected, { includeShop }),
   );
-  const postKey = `${selected}:${visible.map((post) => post.id).join(",")}`;
+  const postKey = `${personal ? artists?.[0]?.id : news ? "all" : selected}:${visible.map((post) => post.id).join(",")}`;
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -72,51 +79,65 @@ export default function SocialFeed({
     }
   }
 
+  const cardWidth = news
+    ? "w-[85%] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)]"
+    : "w-[85%] sm:w-[calc(50%-0.5rem)]";
+
   return (
-    <section className="space-y-6" data-markdown-skip="">
-      <div role="tablist" aria-label="Posts" className="flex border-b border-mystic-card">
-        {platforms.map((id) => {
-          const active = id === selected;
-          return (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setPlatform(id)}
-              className={`-mb-px min-h-11 border-b-2 px-3 font-serif text-sm uppercase tracking-[0.16em] transition-colors sm:px-4 sm:text-base sm:tracking-widest ${
-                active
-                  ? "border-mystic-gold text-mystic-gold"
-                  : "border-transparent text-mystic-muted hover:text-mystic-gold"
-              }`}
-            >
-              {platformLabels[id]}
-            </button>
-          );
-        })}
-      </div>
+    <section className="space-y-5" data-markdown-skip="">
+      {news ? (
+        <header>
+          <h2 className="font-serif text-xl uppercase tracking-widest text-mystic-text md:text-2xl">
+            News feed
+          </h2>
+          <span className="mt-4 block h-px w-12 bg-mystic-gold shadow-gold-glow" />
+        </header>
+      ) : null}
+      {news ? null : (
+        <div role="tablist" aria-label="Posts" className="flex border-b border-mystic-card">
+          {platforms.map((id) => {
+            const active = id === selected;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setPlatform(id)}
+                className={`-mb-px min-h-11 border-b-2 px-3 font-serif text-sm uppercase tracking-[0.16em] transition-colors sm:px-4 sm:text-base sm:tracking-widest ${
+                  active
+                    ? "border-mystic-gold text-mystic-gold"
+                    : "border-transparent text-mystic-muted hover:text-mystic-gold"
+                }`}
+              >
+                {platformLabels[id]}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {visible.length === 0 ? (
         <p className="font-sans text-sm font-light text-mystic-text/60">
-          {emptyCopy[selected]}
+          {news ? "No posts yet." : emptyCopy[selected]}
         </p>
       ) : (
-        <div className="relative mx-auto w-full max-w-[40rem]">
+        <div className={`relative w-full ${news ? "" : "mx-auto max-w-[40rem]"}`}>
           <div
             ref={scrollerRef}
             tabIndex={0}
             onKeyDown={onKeyDown}
-            aria-label={`${platformLabels[selected]} posts`}
-            className="feed-rail no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-mystic-gold"
+            aria-label={news ? "Posts" : `${platformLabels[selected]} posts`}
+            className={`feed-rail no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-mystic-gold ${news ? "items-center" : "items-start"}`}
           >
             {visible.map((post) => (
               <div
                 key={post.id}
                 data-feed-card
                 data-nosnippet={post.standIn ? "true" : undefined}
-                className="w-[85%] shrink-0 snap-start sm:w-[calc(50%-0.5rem)]"
+                className={`${cardWidth} shrink-0 snap-start`}
               >
-                <PostCard post={post} />
+                <PostCard post={post} citeSource={news} />
               </div>
             ))}
           </div>

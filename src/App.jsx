@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+import Portfolio from "./pages/Portfolio";
 import Artists from "./pages/Artists";
 import Care from "./pages/Care";
 import Booking from "./pages/Booking";
@@ -79,6 +80,8 @@ export default function App({ initialPath = "/" }) {
 
   const renderPage = () => {
     switch (pageId) {
+      case "portfolio":
+        return <Portfolio />;
       case "artists":
         return <Artists />;
       case "care":
@@ -90,7 +93,7 @@ export default function App({ initialPath = "/" }) {
       case "terms":
         return <Terms />;
       default:
-        return <Home />;
+        return <Home navigate={navigate} />;
     }
   };
 

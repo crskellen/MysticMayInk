@@ -35,6 +35,16 @@ export const pages = [
       "Custom tattoos at 23239 NY 342, Watertown, NY. Botanical and floral, fine line, black and grey, blackwork, fantasy and anime, and cover-ups. Text 315-775-3727.",
   },
   {
+    path: "/portfolio",
+    id: "portfolio",
+    inNav: true,
+    label: "Portfolio",
+    crumb: "Portfolio",
+    title: "Tattoo Portfolio | Mystic May Tattoo Studios",
+    description:
+      "Finished tattoos from Mystic May Tattoo Studios in Watertown, NY. Filter by style, artist, keyword, and placement, or search the same words.",
+  },
+  {
     path: "/artists",
     id: "artists",
     inNav: true,
