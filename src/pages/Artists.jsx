@@ -1,157 +1,129 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import SocialHandleLink from "../components/SocialHandleLink";
+import SocialFeed from "../components/SocialFeed";
+import { artistById, artists } from "../data/artists";
+import { useFeed } from "../feed/useFeed.js";
+
+function artistIdFromHash() {
+  const id = window.location.hash.replace(/^#/, "");
+  return artists.some((artist) => artist.id === id) ? id : "";
+}
 
 export default function Artists() {
-  // Track which artist's portfolio is currently active
-  const [activeArtist, setActiveArtist] = useState('meagan');
+  const catalog = useFeed();
+  const [activeArtist, setActiveArtist] = useState(artists[0].id);
+  const currentArtist = artistById(activeArtist);
 
-  const artistsData = {
-    meagan: {
-      name: "Meagan Caprice",
-      tagline: "@capriceink_",
-      instagram: "https://instagram.com",
-      tiktok: "https://tiktok.com_",
-      bio: "Founder of Mystic May. Specializing in intricate ornamental linework, botanical ferns, custom tarot card allegories, and massive illustrative transformations.",
-      tags: ["Ornamental", "Botanical", "Tarot Cards", "Cover-Ups"],
-      gallery: [
-        { id: 1, category: "Botanical", title: "Signature Fern Linework" },
-        { id: 2, category: "Tarot Cards", title: "The Moon Custom Card" },
-        { id: 3, category: "Cover-Ups", title: "9-Hour Octopus Transformation" },
-        { id: 4, category: "Custom", title: "Porsche Realism Art Reveal" },
-      ]
-    },
-    britt: {
-      name: "Inksbybritt",
-      tagline: "@inksbybritt",
-      instagram: "https://instagram.com",
-      tiktok: "https://tiktok.com",
-      bio: "Resident Artist. Specializing in fine line precision, clean minimalist scripts, vibrant custom color designs, and dynamic contemporary micro-realism.",
-      tags: ["Fine Line", "Micro-Realism", "Color Work", "Minimalism"],
-      gallery: [
-        { id: 1, category: "Fine Line", title: "Delicate Script Text" },
-        { id: 2, category: "Micro-Realism", title: "Pet Portrait Detail" },
-        { id: 3, category: "Color Work", title: "Neo-Traditional Floral" },
-        { id: 4, category: "Minimalism", title: "Celestial Constellations" },
-      ]
-    }
+  useEffect(() => {
+    const apply = () => {
+      const id = artistIdFromHash();
+      if (id) setActiveArtist(id);
+    };
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+  }, []);
+
+  const selectArtist = (id) => {
+    setActiveArtist(id);
+    const next = `${window.location.pathname}${window.location.search}#${id}`;
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (current !== next) window.history.replaceState(window.history.state, "", next);
   };
-
-  const currentArtist = artistsData[activeArtist];
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 md:py-20 animate-fadeIn">
-      
-      {/* 1. Artist Selector Tabs - Mobile First Split */}
-      <div className="flex border-b border-mystic-card mb-12 max-w-md mx-auto">
-        <button
-          onClick={() => setActiveArtist('meagan')}
-          className={`w-1/2 text-center py-4 font-serif text-sm tracking-widest uppercase transition-all duration-300 min-h-[48px]
-            ${activeArtist === 'meagan' 
-              ? 'text-mystic-gold border-b-2 border-mystic-gold font-semibold' 
-              : 'text-mystic-text/50 hover:text-mystic-text'}`}
-        >
-          Meagan Caprice
-        </button>
-        <button
-          onClick={() => setActiveArtist('britt')}
-          className={`w-1/2 text-center py-4 font-serif text-sm tracking-widest uppercase transition-all duration-300 min-h-[48px]
-            ${activeArtist === 'britt' 
-              ? 'text-mystic-gold border-b-2 border-mystic-gold font-semibold' 
-              : 'text-mystic-text/50 hover:text-mystic-text'}`}
-        >
-          Inksbybritt
-        </button>
+      <header className="mb-10 max-w-2xl">
+        <h1 className="font-serif text-3xl uppercase tracking-widest text-mystic-text md:text-4xl">
+          Artists
+        </h1>
+        <p className="mt-4 font-sans text-sm font-light leading-relaxed text-mystic-text/70 md:text-base">
+          Meagan Caprice and Brittany Ostrander tattoo at Mystic May Tattoo
+          Studios in Watertown, New York.
+        </p>
+      </header>
+
+      <div
+        role="tablist"
+        aria-label="Artists"
+        className="mb-12 -mx-6 flex overflow-x-auto border-b border-mystic-card sm:mx-0"
+      >
+        {artists.map((artist) => {
+          const selected = currentArtist.id === artist.id;
+          return (
+            <button
+              key={artist.id}
+              type="button"
+              role="tab"
+              id={`artist-tab-${artist.id}`}
+              aria-selected={selected}
+              aria-controls={artist.id}
+              onClick={() => selectArtist(artist.id)}
+              className={`min-h-[48px] min-w-[10rem] flex-1 bg-transparent px-4 py-4 text-center font-serif text-sm uppercase tracking-widest transition-all duration-300
+                ${
+                  selected
+                    ? "border-b-2 border-mystic-gold font-semibold text-mystic-gold"
+                    : "border-b-2 border-transparent text-mystic-muted hover:text-mystic-gold"
+                }`}
+            >
+              {artist.name}
+            </button>
+          );
+        })}
       </div>
 
-      {/* 2. Dynamic Profile Spotlight Card */}
-      <section className="bg-mystic-card rounded p-6 md:p-10 border border-mystic-bg shadow-gold-glow mb-16 transition-all duration-500">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-4 max-w-2xl">
-            <div>
-              <div className="flex flex-wrap items-baseline gap-x-4">
-                <h2 className="text-2xl md:text-3xl font-serif text-mystic-text uppercase tracking-wide">
-                  {currentArtist.name}
-                </h2>
-                <span className="text-xs font-mono text-mystic-gold tracking-wider mt-1">
-                  {currentArtist.tagline}
-                </span>
-              </div>
-              
-              {/* Individual Social Targets - Fully Functional Deep Links */}
-              <div className="flex items-center gap-3 pt-2 text-xs font-serif uppercase tracking-widest text-mystic-text/60">
-                <a 
-                  href={currentArtist.instagram} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover:text-mystic-gold transition-colors"
-                >
-                  [ Instagram ]
-                </a>
-                <a 
-                  href={currentArtist.tiktok} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover:text-mystic-gold transition-colors"
-                >
-                  [ TikTok ]
-                </a>
-              </div>
-            </div>
-            
-            <p className="text-sm font-sans font-light leading-relaxed text-mystic-text/70">
-              {currentArtist.bio}
-            </p>
-            
-            {/* Tag Cluster */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              {currentArtist.tags.map((tag, i) => (
-                <span 
-                  key={i} 
-                  className="text-[10px] font-sans tracking-widest uppercase bg-mystic-bg text-mystic-sage px-3 py-1.5 rounded border border-mystic-card"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {artists.map((artist) => {
+        const selected = artist.id === activeArtist;
+        return (
+          <section
+            key={artist.id}
+            role="tabpanel"
+            id={artist.id}
+            hidden={!selected}
+            aria-labelledby={`artist-tab-${artist.id}`}
+          >
+            <div className="mb-16 rounded border border-mystic-bg bg-mystic-card p-6 shadow-gold-glow md:p-10">
+              <div className="max-w-2xl space-y-4">
+                <div>
+                  <h2 className="font-serif text-2xl uppercase tracking-wide text-mystic-text md:text-3xl">
+                    {artist.name}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-2.5 pt-3">
+                    {artist.socials.map((account) => (
+                      <SocialHandleLink
+                        key={account.platform}
+                        account={account}
+                        compact
+                      />
+                    ))}
+                  </div>
+                </div>
 
-      {/* 3. Immersive Modern Art Grid Layout */}
-      <section className="space-y-8">
-        <div className="flex items-center justify-between border-b border-mystic-card pb-4">
-          <h3 className="font-serif text-base tracking-widest uppercase text-mystic-text">
-            Featured Canvas Gallery
-          </h3>
-          <span className="text-xs font-sans text-mystic-muted tracking-wide">
-            {currentArtist.gallery.length} Pieces Displayed
-          </span>
-        </div>
+                <p className="font-sans text-sm font-light leading-relaxed text-mystic-text/70">
+                  {artist.bio}
+                </p>
 
-        {/* Dynamic Gallery Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {currentArtist.gallery.map((item) => (
-            <div 
-              key={item.id} 
-              className="group bg-mystic-card rounded overflow-hidden border border-mystic-bg hover:border-mystic-gold/30 transition-all duration-300 shadow-sm"
-            >
-              {/* High-Aspect Ratio Placeholder for Image Feeds */}
-              <div className="aspect-[3/4] w-full bg-mystic-bg flex items-center justify-center relative overflow-hidden">
-                <span className="text-xs font-serif text-mystic-muted group-hover:text-mystic-gold transition-colors duration-300">
-                  [{item.category}]
-                </span>
-                
-                {/* Floating Micro-Overlay Anchor */}
-                <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-mystic-bg via-mystic-bg/80 to-transparent translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                  <p className="text-xs font-serif text-mystic-text tracking-wide uppercase">
-                    {item.title}
-                  </p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {artist.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded border border-mystic-card bg-mystic-bg px-3 py-1.5 font-sans text-[10px] uppercase tracking-widest text-mystic-sage"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        );
+      })}
 
+      <SocialFeed
+        posts={catalog.posts}
+        artists={[currentArtist]}
+        platforms={["tiktok", "instagram"]}
+      />
     </div>
   );
 }

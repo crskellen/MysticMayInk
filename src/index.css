@@ -2,14 +2,218 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-@import url('https://googleapis.com');
+/*
+  Site visual system. Tokens live here; Tailwind only aliases them.
+
+  Charcoal ground, antique gold, and sage are the interface colors.
+  The shop mark (src/assets/logo.jpg) is the profile picture and carries
+  its own olive and khaki on a dark ground. No typeface is named on the
+  shop profiles. Cinzel and Inter are this site's type.
+*/
+
+:root {
+  --mystic-bg: 18 18 18;
+  --mystic-card: 26 26 26;
+  --mystic-text: 245 245 245;
+  --mystic-muted: 163 163 163;
+  --mystic-sage: 107 127 109;
+  --mystic-gold: 212 175 55;
+  --mystic-silver: 192 192 192;
+  --font-display: "Cinzel", "Playfair Display", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --shadow-gold-glow: 0 0 15px rgba(214, 175, 55, 0.15);
+}
 
 @layer base {
   body {
     @apply bg-mystic-bg text-mystic-text font-sans antialiased selection:bg-mystic-gold selection:text-mystic-bg;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif tracking-wide text-mystic-text;
+  }
+}
+
+@keyframes social-menu-in {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.social-menu {
+  animation: social-menu-in 160ms ease-out;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.feed-rail {
+  scroll-behavior: smooth;
+}
+
+.work-stage {
+  width: 100%;
+  max-width: 100%;
+  height: calc(100dvh - 4.75rem);
+  min-height: 32rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(var(--mystic-card));
+}
+
+.work-film {
+  --gap: 18px;
+  --peek: 150px;
+  --fade: 42px;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+}
+
+.work-film:focus {
+  outline: none;
+}
+
+.work-film:focus-visible {
+  outline: 1px solid rgb(var(--mystic-gold));
+  outline-offset: -1px;
+}
+
+.work-film.is-wide {
+  --focus-w: var(--focus, var(--lead));
+  --edge: calc(50% - (var(--focus-w) / 2) - var(--peek) - var(--fade));
+  --shown: calc(50% - (var(--focus-w) / 2) - var(--peek));
+  --shown-end: calc(50% + (var(--focus-w) / 2) + var(--peek));
+  --edge-end: calc(50% + (var(--focus-w) / 2) + var(--peek) + var(--fade));
+  -webkit-mask-image: linear-gradient(90deg, transparent var(--edge), #000 var(--shown), #000 var(--shown-end), transparent var(--edge-end));
+  mask-image: linear-gradient(90deg, transparent var(--edge), #000 var(--shown), #000 var(--shown-end), transparent var(--edge-end));
+}
+
+.work-film::-webkit-scrollbar {
+  display: none;
+}
+
+.work-film.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+.work-film.is-wide::before,
+.work-film.is-wide::after {
+  content: "";
+  flex: 0 0 calc((100% - var(--lead, 420px)) / 2);
+}
+
+.work-film.is-wide::after {
+  flex-basis: calc((100% - var(--tail, 420px)) / 2);
+}
+
+.work-frame {
+  flex: 0 0 auto;
+  height: 100%;
+  width: auto;
+  min-width: 0;
+  aspect-ratio: var(--ratio);
+  margin: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.work-film.is-wide .work-frame {
+  scroll-snap-align: center;
+}
+
+.work-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.work-film-meta {
+  position: relative;
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 0 24px;
+  border-top: 1px solid rgb(var(--mystic-card));
+}
+
+.work-film-style {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--mystic-gold));
+  white-space: nowrap;
+}
+
+.work-film-hint {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--mystic-muted));
+  transition: opacity 200ms ease;
+}
+
+.work-film-hint.is-hidden {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-menu {
+    animation: none;
+  }
+
+  .feed-rail {
+    scroll-behavior: auto;
+  }
+
+  .work-film-hint {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .work-film {
+    --gap: 12px;
+    --peek: 20px;
+  }
+
+  .work-film-meta {
+    padding: 0 16px;
   }
 }

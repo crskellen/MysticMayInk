@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { shopCity, shopPhoneDisplay, shopSmsHref, shopStreet } from '../data/brand';
 
 export default function Booking() {
   const [formData, setFormData] = useState({
@@ -12,14 +13,21 @@ export default function Booking() {
     e.preventDefault();
     // Build a clean SMS template for mobile text dispatching
     const smsMessage = `Hey Meagan! My name is ${formData.name}. I want to book a session. Concept: ${formData.idea}. Open to total creative freedom: ${formData.creativeFreedom ? 'Yes' : 'No'}.`;
-    window.location.href = `sms:+13157753727?body=${encodeURIComponent(smsMessage)}`;
+    window.location.href = `${shopSmsHref}?body=${encodeURIComponent(smsMessage)}`;
   };
 
   return (
     <div className="max-w-xl mx-auto px-6 py-12 md:py-20 animate-fadeIn">
-      <div className="text-center space-y-3 mb-10">
-        <h2 className="text-3xl font-serif uppercase tracking-widest text-mystic-text">Request a Session</h2>
-        <p className="text-xs font-sans tracking-wider text-mystic-sage uppercase">Watertown Shop Intake</p>
+      <div className="text-center space-y-4 mb-10">
+        <h1 className="text-3xl font-serif uppercase tracking-widest text-mystic-text">Request a Session</h1>
+        <p className="mx-auto max-w-md font-sans text-sm font-light leading-relaxed text-mystic-text/70">
+          Text{" "}
+          <a href={shopSmsHref} className="text-mystic-gold hover:text-mystic-text">
+            {shopPhoneDisplay}
+          </a>{" "}
+          to request a session at {shopStreet}, {shopCity}. A text is a request.
+          It is not a confirmed appointment until the studio agrees to a time.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-mystic-card border border-mystic-bg p-6 md:p-8 rounded space-y-6 shadow-gold-glow">
@@ -61,7 +69,7 @@ export default function Booking() {
 
         <button 
           type="submit"
-          className="w-full py-4 bg-mystic-gold text-mystic-bg font-serif text-sm tracking-widest uppercase font-semibold rounded hover:bg-mystic-text transition-all duration-300 transform active:scale-95 shadow-md min-h-[48px]"
+          className="w-full py-4 bg-mystic-gold text-mystic-bg font-serif text-sm tracking-widest uppercase font-semibold rounded hover:bg-mystic-text transition-all duration-300 transform active:scale-95 shadow-gold-glow min-h-[48px]"
         >
           Generate Text Booking Request
         </button>

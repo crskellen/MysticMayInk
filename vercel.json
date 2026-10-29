@@ -1,0 +1,17 @@
+{
+  "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/tiktok/sync",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/instagram/sync",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/facebook/sync",
+      "schedule": "0 10 * * *"
+    }
+  ]
+}

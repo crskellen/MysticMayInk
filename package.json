@@ -5,8 +5,9 @@
   "main": "tailwind.config.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build && vite build --ssr src/entry-server.jsx --outDir .ssr && node scripts/prerender.mjs",
+    "preview": "vite preview",
+    "test": "node --test ./test/feed.test.js ./test/social-sync.test.js ./test/seo.test.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   },
   "homepage": "https://github.com/crskellen/MysticMayInk#readme",
   "dependencies": {
+    "@vercel/blob": "^2.8.2",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

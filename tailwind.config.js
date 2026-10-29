@@ -1,4 +1,8 @@
 /** @type {import('tailwindcss').Config} */
+// Color, type, and glow values live in src/index.css.
+
+const channel = (name) => `rgb(var(--mystic-${name}) / <alpha-value>)`;
+
 export default {
   content: [
     "./index.html",
@@ -8,22 +12,22 @@ export default {
     extend: {
       colors: {
         mystic: {
-          bg: '#121212',       // Matte Charcoal Background
-          card: '#1A1A1A',     // Slightly lighter charcoal for containers
-          text: '#F5F5F5',     // Off-white for high legibility text
-          muted: '#A3A3A3',    // Muted grey for captions/dates
-          sage: '#6B7F6D',     // Earthy Muted Green for ferns/botanical elements
-          gold: '#D4AF37',     // Antique Gold accent for links, highlights, buttons
-          silver: '#C0C0C0',   // Celestial Silver accent
+          bg: channel("bg"),
+          card: channel("card"),
+          text: channel("text"),
+          muted: channel("muted"),
+          sage: channel("sage"),
+          gold: channel("gold"),
+          silver: channel("silver"),
         }
       },
       fontFamily: {
-        serif: ['Cinzel', 'Playfair Display', 'serif'], // Mystical/Elegant headers
-        sans: ['Inter', 'system-ui', 'sans-serif'],     // Modern/Clean body
+        serif: "var(--font-display)",
+        sans: "var(--font-body)",
       },
       boxShadow: {
-        'gold-glow': '0 0 15px rgba(214, 175, 55, 0.15)', // Subtle mystical card highlight
-      }
+        "gold-glow": "var(--shadow-gold-glow)",
+      },
     },
   },
   plugins: [],
