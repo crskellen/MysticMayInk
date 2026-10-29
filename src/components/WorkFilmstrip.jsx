@@ -48,19 +48,20 @@ function applyLayout(film) {
   const availH = film.clientHeight;
   const frames = framesOf(film);
   if (availW < 40 || availH < 40 || frames.length === 0) return false;
-  // A short sliver of the neighbor, or empty space when a side has no piece.
+  const rail = Number.parseFloat(getComputedStyle(film).getPropertyValue("--rail")) || 32;
+  const rebate = Number.parseFloat(getComputedStyle(film).getPropertyValue("--rebate")) || 10;
+  const innerH = Math.max(80, availH - rail * 2);
+  // A short sliver of the neighbor, or empty film when a side has no piece.
   const desiredPeek = Math.round(Math.min(88, Math.max(48, availW * 0.06)));
-  const maxW = Math.max(120, availW - desiredPeek * 2);
+  const maxW = Math.max(120, availW - desiredPeek * 2 - rebate * 2);
+  const widest = Math.max(...frames.map((frame) => Number(frame.dataset.aspect)));
+  let bandH = innerH;
+  if (bandH * widest > maxW) bandH = Math.round(maxW / widest);
   for (const frame of frames) {
     const aspect = Number(frame.dataset.aspect);
-    let height = availH;
-    let width = Math.round(height * aspect);
-    if (width > maxW) {
-      width = maxW;
-      height = Math.round(width / aspect);
-    }
-    frame.style.width = `${width}px`;
-    frame.style.height = `${height}px`;
+    const width = Math.round(bandH * aspect);
+    frame.style.width = `${width + rebate * 2}px`;
+    frame.style.height = `${bandH}px`;
   }
   const side = Math.max(0, (availW - frames[0].offsetWidth) / 2);
   const peek = Math.min(desiredPeek, side);
@@ -68,6 +69,14 @@ function applyLayout(film) {
   film.style.setProperty("--tail", `${frames[frames.length - 1].offsetWidth}px`);
   film.style.setProperty("--peek", `${Math.round(peek)}px`);
   film.style.setProperty("--fade", `${Math.min(20, Math.round(peek / 2))}px`);
+  const stock = film.querySelector(".work-film-stock");
+  if (stock) {
+    const top = Math.max(0, (availH - bandH) / 2 - rail);
+    stock.style.top = `${top}px`;
+    stock.style.height = `${bandH + rail * 2}px`;
+    stock.style.bottom = "auto";
+    stock.style.width = `${film.scrollWidth}px`;
+  }
   return true;
 }
 
@@ -259,6 +268,7 @@ export default function WorkFilmstrip() {
         role="region"
         aria-label="Selected work. Drag, or use the arrow keys."
       >
+        <div className="work-film-stock" aria-hidden="true" />
         {pieces.map((piece) => (
           <figure
             key={piece.src}
